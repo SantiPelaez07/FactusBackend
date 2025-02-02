@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class UserRequest {
     private String nameUser;
+    private String password;
     private String lastNameUser;
     private String dni;
     private String departament;

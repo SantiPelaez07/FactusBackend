@@ -2,6 +2,7 @@ package com.retoFactus.factus.infrastructure.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
@@ -9,15 +10,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.retoFactus.factus.api.request.UserRequest;
 import com.retoFactus.factus.api.response.UserResponse;
 import com.retoFactus.factus.api.response.secundaryResponse.InvoiceSecundaryResponse;
+import com.retoFactus.factus.domain.entities.Role;
 import com.retoFactus.factus.domain.entities.User;
+import com.retoFactus.factus.domain.repositories.RoleRepository;
 import com.retoFactus.factus.domain.repositories.UserRepository;
 import com.retoFactus.factus.infrastructure.abstract_service.IUserService;
 import com.retoFactus.factus.utils.SortType;
+
 
 import lombok.AllArgsConstructor;
 
@@ -28,9 +33,17 @@ public class UserService implements IUserService {
     @Autowired
     private final UserRepository userRepository;
 
+    @Autowired
+    private final RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public UserResponse create(UserRequest request) {
         User user = this.requestToEntity(request);
+        // String encodedPassword = passwordEncoder.encode(user.getPassword());
+        // user.setPassword(encodedPassword);
         return this.entityToResponse(this.userRepository.save(user));
     }
 
@@ -70,9 +83,14 @@ public class UserService implements IUserService {
         return this.userRepository.findAll(pagination).map(this::entityToResponse);
     }
 
+
+
+
+
     private User requestToEntity(UserRequest request) {
         return User.builder()
                 .nameUser(request.getNameUser())
+                .password(request.getPassword())
                 .lastNameUser(request.getLastNameUser())
                 .dni(request.getDni())
                 .departament(request.getDepartament())
@@ -110,4 +128,18 @@ public class UserService implements IUserService {
         return user;
     }
 
+    public User createdUserRegister(UserRequest request, Role userRole){
+        User newUser = this.requestToEntity(request);
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        System.out.println("Hasta aquí llego");
+        newUser.setRoles(Set.of(userRole));
+        return this.userRepository.save(newUser);
+    }
+
 }
+
+// User user = this.userService.requestToEntity(request);
+//         user.setPassword(passwordEncoder.encode(request.getPassword()));
+//         user.setRoles(Set.of(userRole));
+//         this.userRepository.save(user);
+//         System.out.print("Hasta aquí llego");
