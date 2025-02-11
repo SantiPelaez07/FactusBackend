@@ -1,6 +1,6 @@
 package com.retoFactus.factus.api.response.secundaryResponse;
 
-import com.retoFactus.factus.domain.entities.Invoice;
+import com.retoFactus.factus.api.response.ProductResponse;
 import com.retoFactus.factus.domain.entities.Product;
 
 import lombok.AllArgsConstructor;
@@ -13,11 +13,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InvoiceProductSecundaryResponse {
-
-    private Long idInvoiceProduct;
+public class InvoiceProductAditionalResponse {
+private Long idInvoiceProduct;
     private int quantity;
     private double price;
-    private Invoice invoice;
-    private Product product;
+    private ProductResponse product;
 }

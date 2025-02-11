@@ -5,8 +5,8 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,9 +25,9 @@ import com.retoFactus.factus.utils.SortType;
 
 import lombok.AllArgsConstructor;
 
-@Controller
 @RestController
-@RequestMapping(name = "/product")
+@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping(path = "/product")
 @AllArgsConstructor
 public class ProductController {
 
@@ -35,7 +35,7 @@ public class ProductController {
     private final ProductService service;
 
     @PostMapping
-    public ResponseEntity<ProductResponse> create(@RequestBody ProductRequest request){
+    public ResponseEntity<ProductResponse> create(@Validated @RequestBody ProductRequest request){
         return ResponseEntity.ok(this.service.create(request));
     }
 

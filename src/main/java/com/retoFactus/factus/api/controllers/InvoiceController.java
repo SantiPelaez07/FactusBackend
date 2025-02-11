@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,9 +25,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
-@Controller
 @RestController
-@RequestMapping(path = "invoice")
+@RequestMapping(path = "/invoice")
 @AllArgsConstructor
 public class InvoiceController {
 

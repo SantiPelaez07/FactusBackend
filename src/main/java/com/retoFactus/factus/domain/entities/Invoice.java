@@ -1,6 +1,7 @@
 package com.retoFactus.factus.domain.entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -12,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,16 +30,17 @@ public class Invoice {
     private Long idInvoice;
     private LocalDateTime createdAt;
     private String invoiceUrl;
+    @Positive
     private double totalPrice;
-    
-    //Relation with invoiceProduct
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = false)
-    private List<InvoiceProduct> invoiceProductList;
 
 
     //Relation with User
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", referencedColumnName = "idUser")
     private User user;
+
+   //Relation with invoiceProduct
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<InvoiceProduct> invoiceProducts;
 
 }

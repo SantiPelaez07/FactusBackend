@@ -1,11 +1,4 @@
-package com.retoFactus.factus.api.response;
-
-
-
-
-import java.util.List;
-
-import com.retoFactus.factus.api.response.secundaryResponse.InvoiceSecundaryResponse;
+package com.retoFactus.factus.api.response.secundaryResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
+public class UserSecundaryResponse {
     private Long idUser;
     private String nameUser;
     private String lastNameUser;
@@ -25,5 +18,4 @@ public class UserResponse {
     private String address;
     private String mail;
     private String phone;
-    private List<InvoiceSecundaryResponse> invoiceSecundaryResponse;
 }

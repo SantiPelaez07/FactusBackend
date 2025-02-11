@@ -1,6 +1,5 @@
 package com.retoFactus.factus.api.response;
 
-import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,5 +14,4 @@ public class ProductResponse {
     private Long idProduct;
     private String nameProduct;
     private double price;
-    private List<InvoiceProductResponse> invoiceProductList;
 }

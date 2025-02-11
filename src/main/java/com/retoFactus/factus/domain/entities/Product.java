@@ -32,7 +32,7 @@ public class Product {
     private double price;
 
     //Relation with invoiceProduct
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = false)
-    private List<InvoiceProduct> invoiceProductList;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InvoiceProduct> invoiceProductsList;
     
 }

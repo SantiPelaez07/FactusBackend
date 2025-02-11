@@ -13,13 +13,16 @@ import org.springframework.stereotype.Service;
 
 import com.retoFactus.factus.api.request.InvoiceRequest;
 import com.retoFactus.factus.api.response.InvoiceResponse;
-import com.retoFactus.factus.api.response.secundaryResponse.InvoiceProductSecundaryResponse;
+import com.retoFactus.factus.api.response.ProductResponse;
+import com.retoFactus.factus.api.response.secundaryResponse.InvoiceProductAditionalResponse;
+import com.retoFactus.factus.api.response.secundaryResponse.UserSecundaryResponse;
 import com.retoFactus.factus.domain.entities.Invoice;
 import com.retoFactus.factus.domain.entities.InvoiceProduct;
 import com.retoFactus.factus.domain.entities.Product;
+import com.retoFactus.factus.domain.entities.User;
 import com.retoFactus.factus.domain.repositories.InvoiceProductRepository;
 import com.retoFactus.factus.domain.repositories.InvoiceRepository;
-import com.retoFactus.factus.domain.repositories.ProductRepository;
+import com.retoFactus.factus.domain.repositories.UserRepository;
 import com.retoFactus.factus.infrastructure.abstract_service.IInvoiceService;
 import com.retoFactus.factus.utils.SortType;
 
@@ -30,11 +33,15 @@ import lombok.AllArgsConstructor;
 public class InvoiceService implements IInvoiceService {
 
     private final InvoiceRepository invoiceRepository;
-    private final ProductRepository productRepository;
     private final InvoiceProductRepository invoiceProductRepository;
+    private final UserRepository userRepository;
+
+
     @Override
     public InvoiceResponse create(InvoiceRequest request) {
-        Invoice invoice = this.invoiceRepository.save(this.requestToEntity(request));
+        Invoice invoice = this.requestToEntity(request);
+        invoice.setCreatedAt(LocalDateTime.now());
+        this.invoiceRepository.save(invoice);
         return this.entityToResponse(invoice);
     }
 
@@ -79,38 +86,65 @@ public class InvoiceService implements IInvoiceService {
     }
 
 
-    private Invoice requestToEntity(InvoiceRequest request){
-        return Invoice.builder()
+    private Invoice requestToEntity(InvoiceRequest request){  
+        List<InvoiceProduct> invoiceProduct = this.getIdInvoiceProduct(request.getIdinvoiceProducts());
+        Invoice invoice = Invoice.builder()
         .createdAt(LocalDateTime.now())
         .invoiceUrl(request.getInvoiceUrl())
-        .totalPrice(this.getTotal(request.getIdProduct())). build();
+        .invoiceProducts(invoiceProduct)
+        .totalPrice(this.getTotal(request.getIdinvoiceProducts()))
+        .user(this.getByIdUser(request.getIdUser())).build();
+        for(InvoiceProduct ip : invoiceProduct){
+            ip.setInvoice(invoice);
+        }
+        invoice.setInvoiceProducts(invoiceProduct);
+        return invoice;
     }
 
-    private double getTotal(Long id){
-        Product product = this.productRepository.findById(id).orElseThrow();
-        InvoiceProduct invoiceProduct = this.invoiceProductRepository.findById(id).orElseThrow();
-        double total = product.getPrice() * invoiceProduct.getQuantity();
+    private double getTotal(List<Long> ids){
+        double total = 0;
+        for(Long id : ids){
+            InvoiceProduct invoiceProducts = this.invoiceProductRepository.findById(id).orElseThrow(() -> new IllegalStateException("No se pudo calcular el total de la factura."));
+            Product product = invoiceProducts.getProduct();
+            if(product == null) throw new IllegalStateException("El producto asociado al InvoiceProduct con ID " + id + " es nulo.");
+            total += invoiceProducts.getQuantity() * product.getPrice();
+        }
+
         return total;
     }
 
+
     private InvoiceResponse entityToResponse(Invoice entity){
-        List<InvoiceProductSecundaryResponse> invoiceProduct = new ArrayList<>();
-        if(entity.getInvoiceProductList() == null){
-            entity.setInvoiceProductList(null);
+        List<InvoiceProductAditionalResponse> invoiceProduct = new ArrayList<>();
+        if(entity.getInvoiceProducts() == null){
+            entity.setInvoiceProducts(null);
         }else {
-            invoiceProduct = entity.getInvoiceProductList().stream().map(
+            invoiceProduct = entity.getInvoiceProducts().stream().map(
                 invoiceProductList -> {
-                    InvoiceProductSecundaryResponse invoicep = new InvoiceProductSecundaryResponse();
+                    InvoiceProductAditionalResponse invoicep = new InvoiceProductAditionalResponse();
                     BeanUtils.copyProperties(invoiceProductList, invoicep);
+                    invoicep.setPrice(invoiceProductList.getProduct().getPrice());
+                    invoicep.setProduct(this.convertProductResponse(invoiceProductList.getProduct()));
+                    
                     return invoicep;
-                }).collect(Collectors.toList());
+        }).collect(Collectors.toList());
+
         }
         return InvoiceResponse.builder()
+        .idInvoice(entity.getIdInvoice())
         .createdAt(entity.getCreatedAt())
         .invoiceUrl(entity.getInvoiceUrl())
         .totalPrice(entity.getTotalPrice())
         .invoiceProductList(invoiceProduct)
-        .user(entity.getUser()).build();
+        .user(this.convertResponseUser(entity.getUser())).build();
+    }
+
+    private ProductResponse convertProductResponse(Product product){
+        ProductResponse productR = new ProductResponse();
+        productR.setIdProduct(product.getIdProduct());
+        productR.setNameProduct(product.getNameProduct());
+        productR.setPrice(product.getPrice());
+        return productR;
     }
 
     private Invoice getId(Long id){
@@ -118,5 +152,27 @@ public class InvoiceService implements IInvoiceService {
         return invoice;
     }
     
+    private List<InvoiceProduct> getIdInvoiceProduct(List<Long> ids){
+        List<InvoiceProduct> invoiceProduct = this.invoiceProductRepository.findAllById(ids);
+        if(invoiceProduct.isEmpty()) throw new RuntimeException("No se encontraron InvoiceProduct con los IDS: " + ids);
+        return invoiceProduct;
+    }
+
+    private User getByIdUser(Long id){
+        User user = this.userRepository.findById(id).orElseThrow(() -> new RuntimeException("El usuario con ID " + id + " no existe."));
+        return user;
+    }
+
+    private UserSecundaryResponse convertResponseUser(User user){
+        return UserSecundaryResponse.builder()
+                .idUser(user.getIdUser())
+                .nameUser(user.getNameUser())
+                .lastNameUser(user.getLastNameUser())
+                .dni(user.getDni())
+                .departament(user.getDepartament())
+                .address(user.getAddress())
+                .mail(user.getMail())
+                .phone(user.getPhone()).build();
+    }
 
 }

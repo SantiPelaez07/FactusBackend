@@ -1,8 +1,6 @@
 package com.retoFactus.factus.domain.entities;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -11,9 +9,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,8 +26,6 @@ public class User {
     private Long idUser;
     @Column(length = 15, unique = true, nullable = false)
     private String nameUser;
-    @Column(nullable = false)
-    private String password;
     @Column(length = 20, nullable = false)
     private String lastNameUser;
     @Column(length = 15, nullable = false)
@@ -49,15 +42,5 @@ public class User {
     // Relation with Invoice
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<Invoice> invoices;
-
-    private boolean enable = true;
     
-    // Relation with Role
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "user_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles = new HashSet<>();
 }

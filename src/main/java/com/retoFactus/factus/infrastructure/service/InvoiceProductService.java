@@ -1,5 +1,7 @@
 package com.retoFactus.factus.infrastructure.service;
 
+
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -7,11 +9,12 @@ import org.springframework.stereotype.Service;
 
 import com.retoFactus.factus.api.request.InvoiceProductRequest;
 import com.retoFactus.factus.api.response.InvoiceProductResponse;
+import com.retoFactus.factus.api.response.ProductResponse;
+import com.retoFactus.factus.api.response.secundaryResponse.InvoiceSecundaryResponse;
 import com.retoFactus.factus.domain.entities.Invoice;
 import com.retoFactus.factus.domain.entities.InvoiceProduct;
 import com.retoFactus.factus.domain.entities.Product;
 import com.retoFactus.factus.domain.repositories.InvoiceProductRepository;
-import com.retoFactus.factus.domain.repositories.InvoiceRepository;
 import com.retoFactus.factus.domain.repositories.ProductRepository;
 import com.retoFactus.factus.infrastructure.abstract_service.IInvoiceProductService;
 import com.retoFactus.factus.utils.SortType;
@@ -23,7 +26,6 @@ import lombok.AllArgsConstructor;
 public class InvoiceProductService implements IInvoiceProductService {
 
     private final InvoiceProductRepository repository;
-    private final InvoiceRepository invoiceRepository;
     private final ProductRepository productRepository;
 
     @Override
@@ -71,25 +73,44 @@ public class InvoiceProductService implements IInvoiceProductService {
     private InvoiceProduct requestToEntity(InvoiceProductRequest request){
         return InvoiceProduct.builder()
         .quantity(request.getQuantity())
-        .invoice(this.getInvoiveById(request.getIdInvoice()))
-        .product(this.getProductById(request.getIdProduct())).build();
+        .product(this.getProductById(request.getIdProducts())).build();
     }
 
     private InvoiceProductResponse entityToResponse(InvoiceProduct entity){
-        return InvoiceProductResponse.builder()
+        if(entity.getInvoice() == null){
+            return InvoiceProductResponse.builder()
+        .idInvoiceProduct(entity.getIdInvoiceProduct())
         .quantity(entity.getQuantity())
-        .invoice(entity.getInvoice())
-        .product(entity.getProduct()).build();
+        .product(convertProduct(entity.getProduct())).build();
+        }else {
+            return InvoiceProductResponse.builder()
+            .idInvoiceProduct(entity.getIdInvoiceProduct())
+            .quantity(entity.getQuantity())
+            .invoice(this.convertInvoice(entity.getInvoice()))
+            .product(convertProduct(entity.getProduct())).build();
+        }
+    }
+
+    private ProductResponse convertProduct(Product product){
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setIdProduct(product.getIdProduct());
+        productResponse.setNameProduct(product.getNameProduct());
+        productResponse.setPrice(product.getPrice());
+        return productResponse;
+    }
+
+    private InvoiceSecundaryResponse convertInvoice(Invoice invoice){
+        InvoiceSecundaryResponse invoiceSecundaryResponse = new InvoiceSecundaryResponse();
+        invoiceSecundaryResponse.setCreatedAt(invoice.getCreatedAt());
+        invoiceSecundaryResponse.setIdInvoice(invoice.getIdInvoice());
+        invoiceSecundaryResponse.setInvoiceUrl(invoice.getInvoiceUrl());
+        invoiceSecundaryResponse.setTotalPrice(invoice.getTotalPrice());
+        return invoiceSecundaryResponse;
     }
 
     private InvoiceProduct getIdInvoiceProduct(Long id){
         InvoiceProduct invoiceProduct = this.repository.findById(id).orElseThrow();
         return invoiceProduct;
-    }
-
-    private Invoice getInvoiveById(Long id){
-        Invoice invoice = this.invoiceRepository.findById(id).orElseThrow();
-        return invoice;
     }
 
     private Product getProductById(Long id){

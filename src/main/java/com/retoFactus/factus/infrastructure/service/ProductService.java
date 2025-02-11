@@ -2,16 +2,13 @@ package com.retoFactus.factus.infrastructure.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.retoFactus.factus.api.request.ProductRequest;
-import com.retoFactus.factus.api.response.InvoiceProductResponse;
 import com.retoFactus.factus.api.response.ProductResponse;
 import com.retoFactus.factus.domain.entities.InvoiceProduct;
 import com.retoFactus.factus.domain.entities.Product;
@@ -74,25 +71,25 @@ public class ProductService implements IProductService {
         return Product.builder()
         .nameProduct(request.getNameProduct())
         .price(request.getPrice())
-        .invoiceProductList(invoiceList).build();
+        .invoiceProductsList(invoiceList).build();
     }
 
     public ProductResponse entityToResponse(Product entity){
-        List<InvoiceProductResponse> invoiceList = new ArrayList<>();
-        if(entity.getInvoiceProductList() == null) {
-            entity.setInvoiceProductList(null);
-        }else {
-            invoiceList = entity.getInvoiceProductList().stream().map(
-                invoiceProductList -> {
-                    InvoiceProductResponse invoiceProduct = new InvoiceProductResponse();
-                    BeanUtils.copyProperties(invoiceProductList, invoiceProduct);
-                    return invoiceProduct;
-                }).collect(Collectors.toList());
-        }
+        // List<InvoiceProductResponse> invoiceList = new ArrayList<>();
+        // if(entity.getInvoiceProductsList() == null) {
+        //     entity.setInvoiceProductsList(null);
+        // }else {
+        //     invoiceList = entity.getInvoiceProductsList().stream().map(
+        //         invoiceProductList -> {
+        //             InvoiceProductResponse invoiceProduct = new InvoiceProductResponse();
+        //             BeanUtils.copyProperties(invoiceProductList, invoiceProduct);
+        //             return invoiceProduct;
+        //         }).collect(Collectors.toList());
+        // }
         return ProductResponse.builder()
+        .idProduct(entity.getIdProduct())
         .nameProduct(entity.getNameProduct())
-        .price(entity.getPrice())
-        .invoiceProductList(invoiceList).build();
+        .price(entity.getPrice()).build();
     }
 
     private Product getId(Long id){

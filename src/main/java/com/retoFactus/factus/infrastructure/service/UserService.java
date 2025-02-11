@@ -2,7 +2,6 @@ package com.retoFactus.factus.infrastructure.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
@@ -10,19 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.retoFactus.factus.api.request.UserRequest;
 import com.retoFactus.factus.api.response.UserResponse;
 import com.retoFactus.factus.api.response.secundaryResponse.InvoiceSecundaryResponse;
-import com.retoFactus.factus.domain.entities.Role;
 import com.retoFactus.factus.domain.entities.User;
-import com.retoFactus.factus.domain.repositories.RoleRepository;
 import com.retoFactus.factus.domain.repositories.UserRepository;
 import com.retoFactus.factus.infrastructure.abstract_service.IUserService;
 import com.retoFactus.factus.utils.SortType;
-
 
 import lombok.AllArgsConstructor;
 
@@ -32,12 +27,6 @@ public class UserService implements IUserService {
 
     @Autowired
     private final UserRepository userRepository;
-
-    @Autowired
-    private final RoleRepository roleRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse create(UserRequest request) {
@@ -57,7 +46,7 @@ public class UserService implements IUserService {
     public UserResponse update(UserRequest request, Long id) {
         User user = this.getId(id);
         User update = new User();
-        if (user!= null) {
+        if (user != null) {
             update = this.requestToEntity(request);
             update.setIdUser(id);
         }
@@ -72,7 +61,8 @@ public class UserService implements IUserService {
 
     @Override
     public Page<UserResponse> getAll(int page, int size, SortType sort) {
-        if (page < 0) page = 0;
+        if (page < 0)
+            page = 0;
         PageRequest pagination = null;
         switch (sort) {
             case NONE -> pagination = PageRequest.of(page, size);
@@ -83,14 +73,9 @@ public class UserService implements IUserService {
         return this.userRepository.findAll(pagination).map(this::entityToResponse);
     }
 
-
-
-
-
     private User requestToEntity(UserRequest request) {
         return User.builder()
                 .nameUser(request.getNameUser())
-                .password(request.getPassword())
                 .lastNameUser(request.getLastNameUser())
                 .dni(request.getDni())
                 .departament(request.getDepartament())
@@ -112,6 +97,7 @@ public class UserService implements IUserService {
                     }).collect(Collectors.toList());
         }
         return UserResponse.builder()
+                .idUser(entity.getIdUser())
                 .nameUser(entity.getNameUser())
                 .lastNameUser(entity.getLastNameUser())
                 .dni(entity.getDni())
@@ -119,7 +105,8 @@ public class UserService implements IUserService {
                 .address(entity.getAddress())
                 .mail(entity.getMail())
                 .phone(entity.getPhone())
-                .invoices(invoiceList).build();
+                .invoiceSecundaryResponse(invoiceList)
+                .build();
 
     }
 
@@ -128,18 +115,18 @@ public class UserService implements IUserService {
         return user;
     }
 
-    public User createdUserRegister(UserRequest request, Role userRole){
-        User newUser = this.requestToEntity(request);
-        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        System.out.println("Hasta aquí llego");
-        newUser.setRoles(Set.of(userRole));
-        return this.userRepository.save(newUser);
-    }
+    // public User createdUserRegister(UserRequest request, Role userRole){
+    // User newUser = this.requestToEntity(request);
+    // newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+    // System.out.println("Hasta aquí llego");
+    // newUser.setRoles(Set.of(userRole));
+    // return this.userRepository.save(newUser);
+    // }
 
 }
 
 // User user = this.userService.requestToEntity(request);
-//         user.setPassword(passwordEncoder.encode(request.getPassword()));
-//         user.setRoles(Set.of(userRole));
-//         this.userRepository.save(user);
-//         System.out.print("Hasta aquí llego");
+// user.setPassword(passwordEncoder.encode(request.getPassword()));
+// user.setRoles(Set.of(userRole));
+// this.userRepository.save(user);
+// System.out.print("Hasta aquí llego");

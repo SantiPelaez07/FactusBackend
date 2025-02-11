@@ -1,6 +1,8 @@
 package com.retoFactus.factus.api.request;
 
 
+
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +14,5 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class InvoiceProductRequest {
     private int quantity;
-    private Long idProduct;
-    private Long idInvoice;
+    private Long idProducts;
 }
