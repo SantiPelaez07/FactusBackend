@@ -14,6 +14,7 @@ import com.retoFactus.factus.domain.entities.InvoiceProduct;
 import com.retoFactus.factus.domain.entities.Product;
 import com.retoFactus.factus.domain.repositories.ProductRepository;
 import com.retoFactus.factus.infrastructure.abstract_service.IProductService;
+import com.retoFactus.factus.infrastructure.cloudinary.CloudinaryAdapter;
 import com.retoFactus.factus.utils.SortType;
 
 import lombok.AllArgsConstructor;
@@ -26,8 +27,11 @@ public class ProductService implements IProductService {
     
     @Override
     public ProductResponse create(ProductRequest request) {
-        Product product = this.productRepository.save(this.requestToEntity((request)));
-        return this.entityToResponse(product);
+        Product product = this.requestToEntity(request);
+        CloudinaryAdapter cloudinary = new CloudinaryAdapter();
+        String urlImage = cloudinary.uploadImage(request.getUrlImage());
+        product.setUrlImage(urlImage);
+        return this.entityToResponse(this.productRepository.save(product));
     }
 
     @Override
@@ -43,6 +47,9 @@ public class ProductService implements IProductService {
         if (product != null) {
             update = this.requestToEntity(request);
             update.setIdProduct(id);
+            CloudinaryAdapter cloudinary = new CloudinaryAdapter();
+            String urlImage = cloudinary.uploadImage(request.getUrlImage());
+            update.setUrlImage(urlImage);
         }
         return this.entityToResponse(this.productRepository.save(update));
 
@@ -69,6 +76,7 @@ public class ProductService implements IProductService {
     public Product requestToEntity(ProductRequest request){
         List<InvoiceProduct> invoiceList = new ArrayList<>();
         return Product.builder()
+        .urlImage(request.getUrlImage())
         .nameProduct(request.getNameProduct())
         .price(request.getPrice())
         .invoiceProductsList(invoiceList).build();
@@ -88,6 +96,7 @@ public class ProductService implements IProductService {
         // }
         return ProductResponse.builder()
         .idProduct(entity.getIdProduct())
+        .urlImage(entity.getUrlImage())
         .nameProduct(entity.getNameProduct())
         .price(entity.getPrice()).build();
     }

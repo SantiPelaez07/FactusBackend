@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductResponse {
     private Long idProduct;
+    private String urlImage;
     private String nameProduct;
     private double price;
 }

@@ -25,6 +25,8 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idProduct;
+    @Column(length = 140)
+    private String urlImage;
     @Column(length = 30, nullable = false)
     private String nameProduct;
     @Positive

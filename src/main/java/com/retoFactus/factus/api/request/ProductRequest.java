@@ -10,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductRequest {
+    private String urlImage;
     private String nameProduct;
     private double price;
 }
