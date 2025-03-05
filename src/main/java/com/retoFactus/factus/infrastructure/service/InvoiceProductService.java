@@ -95,6 +95,7 @@ public class InvoiceProductService implements IInvoiceProductService {
         ProductResponse productResponse = new ProductResponse();
         productResponse.setIdProduct(product.getIdProduct());
         productResponse.setNameProduct(product.getNameProduct());
+        productResponse.setUrlImage(product.getUrlImage());
         productResponse.setPrice(product.getPrice());
         return productResponse;
     }

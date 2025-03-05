@@ -79,6 +79,7 @@ public class UserService implements IUserService {
                 .lastNameUser(request.getLastNameUser())
                 .dni(request.getDni())
                 .departament(request.getDepartament())
+                .municipality(request.getMunicipality())
                 .address(request.getAddress())
                 .mail(request.getMail())
                 .phone(request.getPhone()).build();
@@ -102,6 +103,7 @@ public class UserService implements IUserService {
                 .lastNameUser(entity.getLastNameUser())
                 .dni(entity.getDni())
                 .departament(entity.getDepartament())
+                .municipality(entity.getMunicipality())
                 .address(entity.getAddress())
                 .mail(entity.getMail())
                 .phone(entity.getPhone())

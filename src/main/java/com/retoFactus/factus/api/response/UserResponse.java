@@ -22,6 +22,7 @@ public class UserResponse {
     private String lastNameUser;
     private String dni;
     private String departament;
+    private String municipality;
     private String address;
     private String mail;
     private String phone;

@@ -32,6 +32,8 @@ public class User {
     private String dni;
     @Column(length = 40, nullable = false)
     private String departament;
+    @Column(length = 40, nullable = false)
+    private String municipality;
     @Column(length = 80, nullable = false)
     private String address;
     @Column(length = 100, nullable = false)
